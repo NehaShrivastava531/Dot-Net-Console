@@ -1,0 +1,226 @@
+def remote = [:]
+pipeline
+{
+    agent any
+    tools
+    {
+        maven "Maven"
+        jdk "Java"
+    }
+
+    stages
+    {
+        stage("Checkout code")
+        {
+            steps
+            {
+                checkout([$class: 'GitSCM', branches: [[name: '*/java']], extensions: [], userRemoteConfigs: 
+                [[credentialsId: '3', url: 'https://git.nagarro.com/freshertraining2022/nehashrivastava.git']]])
+            }
+        }
+
+        stage("Code build")
+        {
+            steps
+            {
+                
+                sh 'mvn -f firstJavaCode/firstJavaCode/pom.xml clean install'
+                
+            }
+        }
+        
+        stage("Jenkins Versioning"){
+            steps{
+                VersionNumber ([projectStartDate: '08-03-2022',
+                versionNumberString: '${BUILD_ID}', 		        
+                versionPrefix: '', 
+                worstResultForIncrement: 'SUCCESS']);
+            }
+        }
+
+        stage("Unit Test case execution")
+        {
+            steps
+            {
+                sh 'mvn -f firstJavaCode/firstJavaCode/pom.xml test'
+            }
+        }
+
+        stage("Junit test results")
+        {
+            steps
+            {
+                junit 'firstJavaCode/firstJavaCode/target/surefire-reports/*.xml'
+            }
+        }
+
+        stage('Docker Build and Tag') {
+           steps {
+                  sh 'sudo docker rm -f neha'
+                  sh 'sudo rm -frv /root/server/*.war'
+                  sh 'sudo rm -frv /root/server/Dockerfile'
+                  sh 'sudo cp -fv firstJavaCode/firstJavaCode/Dockerfile /root/server'
+                  sh 'sudo cp -fv firstJavaCode/firstJavaCode/target/firstJavaCode-0.0.1-SNAPSHOT.war /root/server'
+                  sh 'sudo docker build -t docker-first-project:latest /root/server'
+                  sh 'sudo docker tag docker-first-project:latest nehashrivastava05/docker-first-project:latest'
+                  
+                
+               
+          }
+        }
+     
+        stage('Publish image to Docker Hub') {
+          
+            steps {
+             withCredentials([string(credentialsId: 'Docker', variable: 'Docker')]) {
+                sh "sudo docker login -u nehashrivastava05 -p ${Docker}"
+            }
+                
+             
+            
+            sh  'sudo docker push nehashrivastava05/docker-first-project:latest' 
+        
+                  
+          }
+        }
+     
+       stage('Run Docker container on Jenkins Agent') {
+             
+            steps 
+            {
+                sh "sudo docker run -d -p 7090:8080 --name neha --env TOMCAT_PASSWORD=neha nehashrivastava05/docker-first-project"
+ 
+            }
+        }
+        stage('Run Docker container on AWS') {
+             
+            steps 
+            {
+                
+                    withCredentials([sshUserPrivateKey(credentialsId: 'AWS', keyFileVariable: 'SSH', usernameVariable: 'ec2-user')]) {
+                        script{
+                            remote.name = 'neha'
+                            remote.user = 'ec2-user'
+                            remote.host = '52.200.2.104'
+                            remote.allowAnyHosts = true
+                            remote.identityFile =SSH
+                            }
+                        sshCommand remote: remote, command:
+                        '''
+                            if sudo docker ps -a| grep neha && sudo docker port neha | grep 8080 ; then sudo docker rm -f neha;fi
+                            sudo docker pull  nehashrivastava05/docker-first-project
+                            sudo docker run -dit -p 8023:8080 --name neha  nehashrivastava05/docker-first-project
+                        '''
+                            
+                    }
+            
+
+ 
+            }
+        }
+        
+        stage("Run an ansible playbook"){
+            steps{
+                sh 'sudo ansible-playbook firstJavaCode/firstJavaCode/ansible/sample.yml -i firstJavaCode/firstJavaCode/ansible/inventory.txt'
+            }
+        }
+        
+        stage("Deploy on remote host")
+        {
+            steps
+            {
+                sshagent(['AWS']) {
+                    sh "scp -o StrictHostKeyChecking=no /var/lib/jenkins/workspace/AWS-Docker/firstJavaCode/firstJavaCode/target/firstJavaCode-0.0.1-SNAPSHOT.war ec2-user@52.200.2.104:/root/apache-tomcat-9.0.60/webapps"
+            }
+            }
+        }
+        stage("Terraform initialise"){
+            steps{
+                sh("sudo pwd")
+                sh("sudo terraform init");
+                echo "Terraform action is --> ${action}"
+                sh ("sudo cat hello.txt")
+                sh ('sudo terraform plan')
+                sh ('sudo terraform destroy --auto-approve')
+                sh ('terraform ${action} --auto-approve') 
+            }
+        }
+        
+        /*stage('Run Docker container on AWS using terraform') {
+        
+            environment{
+                        val = sh (script: 'terraform output public_ip', returnStdout: true).trim()
+            }
+             
+            steps 
+            {
+                    echo "${val}"    
+                    withCredentials([sshUserPrivateKey(credentialsId: 'AWS', keyFileVariable: 'SSH', usernameVariable: 'ec2-user')]) {
+                        script{
+                            remote.name = 'neha123'
+                            remote.user = 'ec2-user'
+                            remote.host = '18.234.235.71'
+                            remote.allowAnyHosts = true
+                            remote.identityFile =SSH
+                            }
+                        sshCommand remote: remote, command:
+                        '''
+                            
+                            sudo su -
+                            yum install docker -y
+                            systemctl start docker
+                            systemctl enable docker
+                        '''
+                            
+                    }
+            
+
+ 
+            }
+        }*/
+        
+        stage('Terraform') {
+            environment{
+                ret= sh (script:" terraform output -json public_ip | jq -r '.[0]'", returnStdout: true).trim()
+                
+            }
+            steps {
+                echo ret 
+                echo "${ret}"
+                withCredentials([sshUserPrivateKey(credentialsId: 'AWS', keyFileVariable: 'SSH', usernameVariable: 'ec2-user')]) {
+                    script{
+                        remote.name = 'neha'
+                        remote.user = 'ec2-user'
+                        remote.host = "${ret}"
+                        remote.allowAnyHosts = true
+                        remote.identityFile=SSH
+                    }
+                    sshCommand remote: remote, command:
+                    '''
+                    sudo yum update
+                    sudo yum install docker -y
+                    sudo systemctl start docker
+                    sudo systemctl enable docker
+                    if sudo docker ps -a| grep neha && sudo docker port neha | grep 8080 ; then sudo docker rm -f neha;fi
+                    sudo docker pull  nehashrivastava05/docker-first-project
+                    sudo docker run -dit -p 8023:8080 --name neha  nehashrivastava05/docker-first-project
+                    '''
+                }
+            }
+        }
+        
+        
+
+        
+        
+        
+        
+
+        
+        
+
+
+
+}
+}
+

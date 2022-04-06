@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "Z2Fha9Z1JgSD7LZ/Ep9VOJ6ecJcZqim48BzDOJnAknM364HbDfJQ7tOGGUjPuVNg2q+vYp4Zn0nGVdolXhE5GA==",
+  "success": true,
+  "projectFilePath": "D:\\Assignment\\DevOps Assignment\\DotnetFirstProject\\DotnetFirstProject\\DotnetFirstProject.csproj",
+  "expectedPackageFiles": [
+    "C:\\Users\\nehashrivastava\\.nuget\\packages\\microsoft.netcore.app.host.win-x64\\5.0.13\\microsoft.netcore.app.host.win-x64.5.0.13.nupkg.sha512"
+  ],
+  "logs": []
+}
