@@ -1,0 +1,12 @@
+D:\Assignment\DevOps Assignment\DotNetConsoleApp\DotNetLibraryClass\bin\Debug\net5.0\DotNetLibraryClass.deps.json
+D:\Assignment\DevOps Assignment\DotNetConsoleApp\DotNetLibraryClass\bin\Debug\net5.0\DotNetLibraryClass.dll
+D:\Assignment\DevOps Assignment\DotNetConsoleApp\DotNetLibraryClass\bin\Debug\net5.0\ref\DotNetLibraryClass.dll
+D:\Assignment\DevOps Assignment\DotNetConsoleApp\DotNetLibraryClass\bin\Debug\net5.0\DotNetLibraryClass.pdb
+D:\Assignment\DevOps Assignment\DotNetConsoleApp\DotNetLibraryClass\obj\Debug\net5.0\DotNetLibraryClass.GeneratedMSBuildEditorConfig.editorconfig
+D:\Assignment\DevOps Assignment\DotNetConsoleApp\DotNetLibraryClass\obj\Debug\net5.0\DotNetLibraryClass.AssemblyInfoInputs.cache
+D:\Assignment\DevOps Assignment\DotNetConsoleApp\DotNetLibraryClass\obj\Debug\net5.0\DotNetLibraryClass.AssemblyInfo.cs
+D:\Assignment\DevOps Assignment\DotNetConsoleApp\DotNetLibraryClass\obj\Debug\net5.0\DotNetLibraryClass.csproj.CoreCompileInputs.cache
+D:\Assignment\DevOps Assignment\DotNetConsoleApp\DotNetLibraryClass\obj\Debug\net5.0\DotNetLibraryClass.dll
+D:\Assignment\DevOps Assignment\DotNetConsoleApp\DotNetLibraryClass\obj\Debug\net5.0\ref\DotNetLibraryClass.dll
+D:\Assignment\DevOps Assignment\DotNetConsoleApp\DotNetLibraryClass\obj\Debug\net5.0\DotNetLibraryClass.pdb
+D:\Assignment\DevOps Assignment\DotNetConsoleApp\DotNetLibraryClass\obj\Debug\net5.0\DotNetLibraryClass.csproj.AssemblyReference.cache
